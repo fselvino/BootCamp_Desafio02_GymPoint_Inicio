@@ -1,10 +1,23 @@
 import jwt from 'jsonwebtoken';
+import * as yup from 'yup';
 import User from '../models/User';
 import authConfig from '../../config/auth';
 
 class SessionController {
   // cria sessao no momento do login
   async store(req, res) {
+    // cria um esquema de validaçao dos dados
+    const schema = yup.object().shape({
+      email: yup
+        .string()
+        .email()
+        .required(),
+      password: yup.string().required(),
+    });
+    // valida os dados vindos do bory se nao for igual retorna erro
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation Store Session fails' });
+    }
     // recebe as informaçoes de email e password do corpo da requisiçao
     const { email, password } = req.body;
     // realiza consulta verificando o email e se é  de administrador
